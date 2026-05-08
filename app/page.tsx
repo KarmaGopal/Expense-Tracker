@@ -8,6 +8,7 @@ export default function HomePage() {
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('')
   const [expenses, setExpenses] = useState<any[]>([])
+  const [editingId, setEditingId] = useState<string | null>(null)
   const totalAmount = expenses.reduce(
   (sum, expense) => sum + Number(expense.amount),
   0
@@ -55,61 +56,60 @@ useEffect(() => {
   loadExpenses()
 }, [])
 
-  const handleSubmit = async () => {
-    const {
-      data: { user },
-    } = await supabase.auth.getUser()
+const handleSubmit = async () => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
 
-    if (!user) {
-      alert('Please login first')
-      return
-    }
-	
-	
-	
+  if (!user) {
+    alert('Please login first')
+    return
+  }
 
-const {
-  data: { user: currentUser },
-} = await supabase.auth.getUser()
-
-if (!currentUser) return
-
-const { error } = await supabase
-  .from('expenses')
-  .insert([
-    {
-      title,
-      amount: Number(amount),
-      category,
-      user_id: currentUser.id,
-    },
-  ])
-
-if (error) {
-  console.log(error)
-  return
-}
-
-setTitle('')
-setAmount('')
-setCategory('')
-
-fetchExpenses()
-	
-	
-	
+  if (editingId) {
+    const { error } = await supabase
+      .from('expenses')
+      .update({
+        title,
+        amount: Number(amount),
+        category,
+      })
+      .eq('id', editingId)
 
     if (error) {
-      alert('error')
-    } else {
-      alert('Expense added')
-
-      setTitle('')
-      setAmount('')
-      setCategory('')
-	  fetchExpenses()
+      alert(error.message)
+      return
     }
+
+    alert('Expense updated')
+
+    setEditingId(null)
+  } else {
+    const { error } = await supabase
+      .from('expenses')
+      .insert([
+        {
+          title,
+          amount: Number(amount),
+          category,
+          user_id: user.id,
+        },
+      ])
+
+    if (error) {
+      alert(error.message)
+      return
+    }
+
+    alert('Expense added')
   }
+
+  setTitle('')
+  setAmount('')
+  setCategory('')
+
+  fetchExpenses()
+}
 
   return (
     <div className="flex min-h-screen items-center justify-center">
@@ -186,7 +186,7 @@ fetchExpenses()
           onClick={handleSubmit}
           className="w-full rounded bg-black p-2 text-white"
         >
-          Add Expense
+          {editingId ? 'Update Expense' : 'Add Expense'}
         </button>
 <div className="mt-10">
   <h2 className="mb-4 text-2xl font-semibold">
@@ -214,6 +214,17 @@ fetchExpenses()
             <p className="font-bold">
               ${expense.amount}
             </p>
+<button
+  onClick={() => {
+    setEditingId(expense.id)
+    setTitle(expense.title)
+    setAmount(String(expense.amount))
+    setCategory(expense.category)
+  }}
+  className="rounded bg-blue-500 px-3 py-1 text-white"
+>
+  Edit
+</button>
 
             <button
               onClick={async () => {
