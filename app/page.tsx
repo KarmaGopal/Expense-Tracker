@@ -2,6 +2,14 @@
 
 import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
+import {
+  PieChart,
+  Pie,
+  Cell,
+  Tooltip,
+  Legend,
+  ResponsiveContainer,
+} from 'recharts'
 
 export default function HomePage() {
   const [title, setTitle] = useState('')
@@ -111,10 +119,83 @@ const handleSubmit = async () => {
   fetchExpenses()
 }
 
-  return (
-    <div className="flex min-h-screen items-center justify-center">
-      <div className="w-full max-w-md space-y-4">
-        <div className="mb-6 flex items-center justify-between">
+const categoryTotals = expenses.reduce(
+  (acc: any, expense: any) => {
+    const existing = acc.find(
+      (item: any) => item.name === expense.category
+    )
+
+    if (existing) {
+      existing.value += Number(expense.amount)
+    } else {
+      acc.push({
+        name: expense.category,
+        value: Number(expense.amount),
+      })
+    }
+
+    return acc
+  },
+  []
+)
+
+
+const COLORS = [
+  '#0088FE',
+  '#00C49F',
+  '#FFBB28',
+  '#FF8042',
+  '#8884D8',
+  '#FF6384',
+]
+
+
+
+
+return (
+  <div className="flex min-h-screen items-center justify-center">
+    <div className="w-full max-w-md space-y-4">
+	
+ <div className="rounded border p-4 shadow-sm">
+        <h2 className="mb-4 text-xl font-semibold">
+          Expenses by Category
+        </h2>
+
+  <div className="h-80">
+    <ResponsiveContainer width="100%" height="100%">
+      <PieChart>
+        <Pie
+          data={categoryTotals}
+          cx="50%"
+          cy="50%"
+          labelLine={false}
+          outerRadius={100}
+          dataKey="value"
+          label={({ name, percent }) =>
+            `${name} ${(percent * 100).toFixed(0)}%`
+          }
+        >
+          {categoryTotals.map(
+            (entry: any, index: number) => (
+              <Cell
+                key={`cell-${index}`}
+                fill={
+                  COLORS[index % COLORS.length]
+                }
+              />
+            )
+          )}
+        </Pie>
+
+        <Tooltip />
+        <Legend />
+      </PieChart>
+    </ResponsiveContainer>
+  </div>
+</div>
+
+
+ <div className="mb-6 flex items-center justify-between">
   <h1 className="text-3xl font-bold">
     Expense Tracker
   </h1>
@@ -131,15 +212,7 @@ const handleSubmit = async () => {
 </div>
 
 <div className="mb-8 grid grid-cols-2 gap-4">
-  <div className="rounded border p-4 shadow-sm">
-    <p className="text-sm text-gray-500">
-      Total Spent
-    </p>
 
-    <p className="text-2xl font-bold">
-      ${totalAmount}
-    </p>
-  </div>
 
   <div className="rounded border p-4 shadow-sm">
     <p className="text-sm text-gray-500">
@@ -152,6 +225,15 @@ const handleSubmit = async () => {
   </div>
 </div>
 
+  <div className="rounded border p-4 shadow-sm">
+    <p className="text-sm text-gray-500">
+      Total Spent
+    </p>
+
+    <p className="text-2xl font-bold">
+      ${totalAmount}
+    </p>
+  </div>
         <input
           className="w-full rounded border p-2"
           placeholder="Title"
