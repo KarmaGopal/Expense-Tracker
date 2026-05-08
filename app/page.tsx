@@ -17,6 +17,8 @@ export default function HomePage() {
   const [category, setCategory] = useState('')
   const [expenses, setExpenses] = useState<any[]>([])
   const [editingId, setEditingId] = useState<string | null>(null)
+  const [aiInsights, setAiInsights] = useState('')
+  const [loadingInsights, setLoadingInsights] = useState(false)
   const totalAmount = expenses.reduce(
   (sum, expense) => sum + Number(expense.amount),
   0
@@ -150,7 +152,37 @@ const COLORS = [
 ]
 
 
+const generateInsights = async () => {
+  setLoadingInsights(true)
 
+  try {
+    const response = await fetch(
+      'http://localhost:5678/webhook/expense-summary',
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ expenses }),
+      }
+    )
+
+    const data = await response.json()
+
+   setAiInsights(data.output[0].content[0].text)
+   
+  } catch (error) {
+    console.log(error)
+    alert('Failed to generate insights')
+  }
+
+  setLoadingInsights(false)
+}
+
+const handleLogout = async () => {
+  await supabase.auth.signOut()
+  window.location.href = '/login'
+}
 
 return (
   <div className="flex min-h-screen items-center justify-center">
@@ -195,17 +227,37 @@ return (
 </div>
 
 
- <div className="mb-6 flex items-center justify-between">
+<button
+  onClick={generateInsights}
+  className="w-full rounded bg-purple-600 p-2 text-white"
+>
+  {loadingInsights
+    ? 'Generating Insights...'
+    : 'Generate AI Insights'}
+</button>
+
+{aiInsights && (
+  <div className="rounded border p-4 shadow-sm">
+    <h2 className="mb-2 text-xl font-semibold">
+      AI Insights
+    </h2>
+
+    <pre className="whitespace-pre-wrap">
+      {aiInsights}
+    </pre>
+  </div>
+)}
+
+
+
+<div className="mb-6 flex items-center justify-between">
   <h1 className="text-3xl font-bold">
     Expense Tracker
   </h1>
 
   <button
-    onClick={async () => {
-      await supabase.auth.signOut()
-      window.location.href = '/login'
-    }}
-    className="rounded bg-gray-800 px-4 py-2 text-white"
+    onClick={handleLogout}
+    className="rounded bg-red-500 px-4 py-2 text-white"
   >
     Logout
   </button>
