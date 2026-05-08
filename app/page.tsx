@@ -264,8 +264,6 @@ return (
 </div>
 
 <div className="mb-8 grid grid-cols-2 gap-4">
-
-
   <div className="rounded border p-4 shadow-sm">
     <p className="text-sm text-gray-500">
       Total Entries
@@ -275,7 +273,6 @@ return (
       {expenses.length}
     </p>
   </div>
-</div>
 
   <div className="rounded border p-4 shadow-sm">
     <p className="text-sm text-gray-500">
@@ -286,6 +283,8 @@ return (
       ${totalAmount}
     </p>
   </div>
+</div>
+
         <input
           className="w-full rounded border p-2"
           placeholder="Title"
