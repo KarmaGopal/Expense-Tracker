@@ -8,7 +8,10 @@ export default function HomePage() {
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('')
   const [expenses, setExpenses] = useState<any[]>([])
-  
+  const totalAmount = expenses.reduce(
+  (sum, expense) => sum + Number(expense.amount),
+  0
+)
   const fetchExpenses = async () => {
   const {
     data: { user },
@@ -35,7 +38,19 @@ export default function HomePage() {
 
 
 useEffect(() => {
-  fetchExpenses()
+  const loadExpenses = async () => {
+  const {
+    data: { session },
+  } = await supabase.auth.getSession()
+
+  console.log(session)
+
+  if (session) {
+    fetchExpenses()
+  } else {
+    window.location.href = '/login'
+  }
+}
 }, [])
 
   const handleSubmit = async () => {
@@ -84,6 +99,28 @@ useEffect(() => {
   >
     Logout
   </button>
+</div>
+
+<div className="mb-8 grid grid-cols-2 gap-4">
+  <div className="rounded border p-4 shadow-sm">
+    <p className="text-sm text-gray-500">
+      Total Spent
+    </p>
+
+    <p className="text-2xl font-bold">
+      ${totalAmount}
+    </p>
+  </div>
+
+  <div className="rounded border p-4 shadow-sm">
+    <p className="text-sm text-gray-500">
+      Total Entries
+    </p>
+
+    <p className="text-2xl font-bold">
+      {expenses.length}
+    </p>
+  </div>
 </div>
 
         <input
