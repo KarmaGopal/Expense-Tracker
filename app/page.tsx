@@ -167,12 +167,20 @@ fetchExpenses()
           onChange={(e) => setAmount(e.target.value)}
         />
 
-        <input
-          className="w-full rounded border p-2"
-          placeholder="Category"
-          value={category}
-          onChange={(e) => setCategory(e.target.value)}
-        />
+<select
+  className="w-full rounded border p-2"
+  value={category}
+  onChange={(e) => setCategory(e.target.value)}
+>
+  <option value="">Select Category</option>
+  <option value="Food">Food</option>
+  <option value="Travel">Travel</option>
+  <option value="Shopping">Shopping</option>
+  <option value="Bills">Bills</option>
+  <option value="Entertainment">Entertainment</option>
+  <option value="Health">Health</option>
+  <option value="Other">Other</option>
+</select>
 
         <button
           onClick={handleSubmit}
