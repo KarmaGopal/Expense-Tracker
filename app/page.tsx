@@ -39,18 +39,20 @@ export default function HomePage() {
 
 useEffect(() => {
   const loadExpenses = async () => {
-  const {
-    data: { session },
-  } = await supabase.auth.getSession()
+    const {
+      data: { session },
+    } = await supabase.auth.getSession()
 
-  console.log(session)
+    console.log(session)
 
-  if (session) {
-    fetchExpenses()
-  } else {
-    window.location.href = '/login'
+    if (session) {
+      fetchExpenses()
+    } else {
+      window.location.href = '/login'
+    }
   }
-}
+
+  loadExpenses()
 }, [])
 
   const handleSubmit = async () => {
@@ -62,13 +64,40 @@ useEffect(() => {
       alert('Please login first')
       return
     }
+	
+	
+	
 
-    const { error } = await supabase.from('expenses').insert({
+const {
+  data: { user: currentUser },
+} = await supabase.auth.getUser()
+
+if (!currentUser) return
+
+const { error } = await supabase
+  .from('expenses')
+  .insert([
+    {
       title,
       amount: Number(amount),
       category,
-      user_id: user.id,
-    })
+      user_id: currentUser.id,
+    },
+  ])
+
+if (error) {
+  console.log(error)
+  return
+}
+
+setTitle('')
+setAmount('')
+setCategory('')
+
+fetchExpenses()
+	
+	
+	
 
     if (error) {
       alert(error.message)

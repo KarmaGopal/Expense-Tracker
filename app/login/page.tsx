@@ -6,19 +6,25 @@ import { supabase } from '@/lib/supabase'
 export default function LoginPage() {
   const [email, setEmail] = useState('')
 
-  const handleLogin = async () => {
-    await supabase.auth.signInWithOtp({
-      email,
-      options: {
-        emailRedirectTo:
-          process.env.NODE_ENV === 'development'
-            ? 'http://localhost:3000'
-            : 'https://expense-tracker-dftx-75mc4w9fd-karmagopals-projects.vercel.app',
-      },
-    })
+const handleLogin = async () => {
+  const { error } = await supabase.auth.signInWithOtp({
+    email,
+    options: {
+      emailRedirectTo:
+        process.env.NODE_ENV === 'development'
+          ? 'http://localhost:3000'
+          : ''https://expense-tracker-dftx-h80h0ssbv-karmagopals-projects.vercel.app'',
+    },
+  })
 
-    alert('Check your email for login link')
+  if (error) {
+    console.log(error)
+    alert(error.message)
+    return
   }
+
+  alert('Check your email for login link')
+}
 
   return (
     <div className="flex min-h-screen items-center justify-center">
