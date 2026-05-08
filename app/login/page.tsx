@@ -13,7 +13,7 @@ const handleLogin = async () => {
       emailRedirectTo:
         process.env.NODE_ENV === 'development'
           ? 'http://localhost:3000'
-          : ''https://expense-tracker-dftx-h80h0ssbv-karmagopals-projects.vercel.app'',
+          : 'https://expense-tracker-dftx-h80h0ssbv-karmagopals-projects.vercel.app',
     },
   })
 
