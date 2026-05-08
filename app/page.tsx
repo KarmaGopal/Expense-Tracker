@@ -100,7 +100,7 @@ fetchExpenses()
 	
 
     if (error) {
-      alert(error.message)
+      alert('error')
     } else {
       alert('Expense added')
 
