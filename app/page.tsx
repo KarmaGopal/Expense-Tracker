@@ -1,12 +1,51 @@
 'use client'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { supabase } from '@/lib/supabase'
 
 export default function HomePage() {
   const [title, setTitle] = useState('')
   const [amount, setAmount] = useState('')
   const [category, setCategory] = useState('')
+  const [expenses, setExpenses] = useState<any[]>([])
+  
+  const fetchExpenses = async () => {
+  const {
+    data: { user },
+  } = await supabase.auth.getUser()
+
+  if (!user) {
+    console.log('No logged in user')
+    return
+  }
+
+  const { data, error } = await supabase
+    .from('expenses')
+    .select('*')
+    .eq('user_id', user.id)
+    .order('created_at', { ascending: false })
+
+  if (error) {
+    console.log(error)
+    return
+  }
+
+  setExpenses(data || [])
+}
+
+
+useEffect(() => {
+  fetchExpenses()
+}, [])
+
+
+  
+  
+  
+  
+  
+  
+  
 
   const handleSubmit = async () => {
     const {
@@ -33,6 +72,7 @@ export default function HomePage() {
       setTitle('')
       setAmount('')
       setCategory('')
+	  fetchExpenses()
     }
   }
 
@@ -69,6 +109,52 @@ export default function HomePage() {
         >
           Add Expense
         </button>
+<div className="mt-10">
+  <h2 className="mb-4 text-2xl font-semibold">
+    Expenses
+  </h2>
+
+  <div className="space-y-3">
+    {expenses.map((expense) => (
+      <div
+        key={expense.id}
+        className="rounded border p-4"
+      >
+        <div className="flex items-center justify-between">
+          <div>
+            <p className="font-semibold">
+              {expense.title}
+            </p>
+
+            <p className="text-sm text-gray-500">
+              {expense.category}
+            </p>
+          </div>
+
+          <div className="flex items-center gap-4">
+            <p className="font-bold">
+              ${expense.amount}
+            </p>
+
+            <button
+              onClick={async () => {
+                await supabase
+                  .from('expenses')
+                  .delete()
+                  .eq('id', expense.id)
+
+                fetchExpenses()
+              }}
+              className="rounded bg-red-500 px-3 py-1 text-white"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>		
       </div>
     </div>
   )
