@@ -38,15 +38,6 @@ useEffect(() => {
   fetchExpenses()
 }, [])
 
-
-  
-  
-  
-  
-  
-  
-  
-
   const handleSubmit = async () => {
     const {
       data: { user },
@@ -79,7 +70,21 @@ useEffect(() => {
   return (
     <div className="flex min-h-screen items-center justify-center">
       <div className="w-full max-w-md space-y-4">
-        <h1 className="text-3xl font-bold">Expense Tracker</h1>
+        <div className="mb-6 flex items-center justify-between">
+  <h1 className="text-3xl font-bold">
+    Expense Tracker
+  </h1>
+
+  <button
+    onClick={async () => {
+      await supabase.auth.signOut()
+      window.location.href = '/login'
+    }}
+    className="rounded bg-gray-800 px-4 py-2 text-white"
+  >
+    Logout
+  </button>
+</div>
 
         <input
           className="w-full rounded border p-2"
